@@ -1,6 +1,6 @@
 import socket
 import threading
-import collections
+import os
 
 hostIP = "0.0.0.0"
 thisMachineDomain = "0.0.0"
@@ -49,8 +49,27 @@ def getMsgFromHost(s):
         if command is False:
             print(msg)
 
-        # elif:
-            # if command is ""
+        else:
+            if command is COMMANDS.I_AM_HOST:
+                hostList.append({"ID": len(hostList), "IP": addr})
+                showHostList()
+
+def setHostIP():
+    global hostIP
+    selectedID = input("ID:")
+    for ip in hostList: 
+        if str(ip["ID"]) == str(selectedID): 
+            hostIP = ip["IP"]
+    print(hostIP)
+
+def showHostList():
+    printColored("Selecione um host pelo ID", bcolors.WARNING)
+    printColored("ID: IP", bcolors.WARNING)
+    
+    for ip in hostList:
+        printColored(str(ip["ID"]) + ": " + str(ip["IP"]), bcolors.WARNING)
+    
+    setHostIP()
 
 def sendMsgToHost(s):
     global hostIP    
@@ -66,7 +85,10 @@ def sendMsgToHost(s):
         elif command is COMMANDS.REFRESH:
             searchForHost(s)
 
-def searchForHost (s):
+def searchForHost(s):
+    hostList = []
+    os.system('clear')
+
     printColored("Buscando servidores...", bcolors.OKBLUE)
 
     msg = COMMANDS.LOOKING_FOR_HOST
@@ -75,7 +97,7 @@ def searchForHost (s):
         lookingForIP = thisMachineDomain + str(lastIpOctet)
         s.sendto(msg.encode(), (lookingForIP, 4004))
 
-def setIpAndDomain ():
+def setIpAndDomain():
     global thisMachineDomain
 
     sq = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
